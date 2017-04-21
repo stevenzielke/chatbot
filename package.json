@@ -1,0 +1,27 @@
+{
+  "name": "chatbot",
+  "version": "1.0.0",
+  "description": "\"Build a bot in Node.js on Microsoft Bot Framework.\"",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stevenzielke/chatbot.git"
+  },
+  "keywords": [
+    "bot",
+    "slack"
+  ],
+  "author": "Steven Zielke",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stevenzielke/chatbot/issues"
+  },
+  "homepage": "https://github.com/stevenzielke/chatbot#readme",
+  "dependencies": {
+    "botbuilder": "^3.7.0",
+    "restify": "^4.3.0"
+  }
+}
