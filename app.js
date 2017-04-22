@@ -19,7 +19,9 @@ var bot = new builder.UniversalBot(connector);
 server.post('/api/messages', connector.listen());
 
 // Create bot dialogs
-bot.dialog('/', function (session) {
+bot.dialog('/', 
+
+function (session) {
     var card = new builder.HeroCard(session)
             .title("Microsoft Bot Framework")
             .text("Your bots - wherever your users are talking.")
@@ -28,8 +30,29 @@ bot.dialog('/', function (session) {
             ]);
         var msg = new builder.Message(session).attachments([card]);
 session.send(msg);
-    session.send("Hallo.");
+    session.send("Hallo2.");
+    session.beginDialog('/menu');
 });
+
+bot.dialog('/menu', [
+    function (session) {
+        builder.Prompts.choice(session, "What demo would you like to run?", "prompts|picture|cards|list|carousel|receipt|actions|(quit)");
+    },
+    function (session, results) {
+        if (results.response && results.response.entity != '(quit)') {
+            // Launch demo dialog
+            session.beginDialog('/' + results.response.entity);
+        } else {
+            // Exit the menu
+            session.endDialog();
+        }
+    },
+    function (session, results) {
+        // The menu runs a loop until the user chooses to (quit).
+        session.replaceDialog('/menu');
+    }
+]).reloadAction('reloadMenu', null, { matches: /^menu|show menu/i });
+
 
 server.get('/', restify.serveStatic({
  directory: __dirname,
