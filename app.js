@@ -9,8 +9,8 @@ server.listen(process.env.PORT || 3000, function()
    console.log('%s listening to %s', server.name, server.url); 
 });
 
-var appId = process.env.MY_APP_ID,
-var appPassword = process.env.MY_APP_PASSWORD;
+//var appId = process.env.MY_APP_ID,
+//var appPassword = process.env.MY_APP_PASSWORD;
 
 // Create chat bot
 var connector = new builder.ChatConnector
