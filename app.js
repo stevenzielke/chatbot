@@ -20,7 +20,15 @@ server.post('/api/messages', connector.listen());
 
 // Create bot dialogs
 bot.dialog('/', function (session) {
-    session.send("Hello World");
+    var card = new builder.HeroCard(session)
+            .title("Microsoft Bot Framework")
+            .text("Your bots - wherever your users are talking.")
+            .images([
+                 builder.CardImage.create(session, "http://docs.botframework.com/images/demo_bot_image.png")
+            ]);
+        var msg = new builder.Message(session).attachments([card]);
+session.send(msg);
+    session.send("Hallo.");
 });
 
 server.get('/', restify.serveStatic({
