@@ -36,18 +36,17 @@ function (session) {
             .title("HU / AU Planer")
             .text("ich helfe Ihnen dabei einen Termin zur HU/AU zu vereinbaren.")
             .images([
-                 builder.CardImage.create(session, "https://mobilapp-chatbot.azurewebsites.net/images/huau.jpg")
+                 builder.CardImage.create(session, "http://www.mobilapp.io/wp-content/uploads/2017/04/huau.jpg")
             ]);
         var msg = new builder.Message(session).attachments([card]);
     session.send(msg);
     //session.send(session.userData.name);
-    session.send("Wie kann ich Ihnen helfen? Mit einer HU, oder einer AU?");
-    session.beginDialog('/menu');
+    session.beginDialog('/huaumenu');
 });
 
-bot.dialog('/menu', [
+bot.dialog('/huaumenu', [
     function (session) {
-        builder.Prompts.choice(session, "Wie kann ich IHnen helfen? Mit einer HU, oder einer AU?", "HU|AU|(abbrechen)");
+        builder.Prompts.choice(session, "Wie kann ich Ihnen helfen? Mit einer Hauptuntersuchung (HU), oder einer Abgasuntersuchung (AU)?", "HU|AU|(abbrechen)");
     },
     function (session, results) {
         if (results.response && results.response.entity != '(quit)') {
@@ -60,9 +59,17 @@ bot.dialog('/menu', [
     },
     function (session, results) {
         // The menu runs a loop until the user chooses to (quit).
-        session.replaceDialog('/menu');
+        session.replaceDialog('/huaumenu');
     }
 ]).reloadAction('reloadMenu', null, { matches: /^menu|show menu/i });
+
+
+
+bot.dialog('/HU', [
+function (session) {
+        session.send("Wo möchten Sie denn die Hauptuntersuchung durchführen? Bitte geben Sie die PLZ oder Adresse ein und ich schlage eine TÜV Station in der Nähe vor.");
+    }
+]);
 
 
 server.get('/', restify.serveStatic({
