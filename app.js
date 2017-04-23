@@ -1,6 +1,7 @@
 // Add your requirements
 var restify = require('restify'); 
 var builder = require('botbuilder'); 
+var math = require('mathjs');
 
 // Setup Restify Server
 var server = restify.createServer();
@@ -28,9 +29,10 @@ function createTUEVStationsArr () {
 
 }
 createTUEVStationsArr();
+var closestIndex;
 console.log(tuevStations);
 
-function getGeo(ort) {
+function getGeo(ort, session) {
     // setup Google Maps
 
     var googleMapsClient = require('@google/maps').createClient({
@@ -44,19 +46,31 @@ function getGeo(ort) {
                 if (response.json.results[i].geometry) {
                     var lat = response.json.results[i].geometry.location.lat;
                     var lng = response.json.results[i].geometry.location.lng;
-                    console.log(lat);
-                    console.log(lng);
+                    //console.log(lat);
+                    //console.log(lng);
                  }
             }
-    
-            var util = require("util");
-            //console.log(JSON.stringify(response, null, 4))
+            
+            var closestDist;
+            for(var i = 0; i < tuevStations["stations"].length; i++) {
+                    var latDelta = tuevStations["stations"][i].lat - lat;
+                    var lngDelta = tuevStations["stations"][i].lng - lng;
+                    var dist = math.sqrt(latDelta*latDelta + lngDelta*lngDelta);
+                    if(!closestDist || dist < closestDist) {
+                        closestDist = dist;
+                        closestIndex = i;
+                    }
+            }
+//console.log("hhh: " + closestIndex);
+//var test = tuevStations["stations"][closestIndex];
+    //var closestTUEV = tuevStations["stations"][closestIndex].address;
+   session.send("Die folgende TÜV Station ist am nächsten zu dem Standort: " + tuevStations["stations"][closestIndex].address);
+
         } else {
             //console.log(err);
         }
         }
     );
-   
 }
 
 
@@ -137,8 +151,11 @@ function (session) {
         //} else {
         //    session.send("Einen Moment. Ich suche nach einer TÜV Station in der Nähe der PLZ: " + ort);
         //}
-        getGeo(ort);
-       // builder.Prompts.number(session, "Hi " + results.response + ", How many years have you been coding?"); 
+        getGeo(ort, session);
+        //console.log("hhh: " + closestIndex);
+        //session.send("Die folgende TÜV Station ist am nächsten zu dem Standort: " + tuevStations["stations"][closestIndex]);
+       // builder.Prompts.number(session, "Hi " + results.response + ", How many years have you been coding?");
+
     }
 ]);
 
