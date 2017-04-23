@@ -2,7 +2,7 @@
 var restify = require('restify'); 
 var builder = require('botbuilder'); 
 var math = require('mathjs');
-
+var locationDialog = require('botbuilder-location');
 // Setup Restify Server
 var server = restify.createServer();
 server.listen(process.env.PORT || 3000, function() 
@@ -76,7 +76,23 @@ function getGeo(ort, session) {
 
 
 
-
+function firstRun(session) {
+  console.log('This user is running our bot the first time')
+  createUser(session)
+  platforms.firstRun(session.message.user.id, session.message.address.channelId)
+    .then((values) => {
+      for (let value of values) {
+        if (value.data.firstName && value.data.lastName) {
+          session.userData.user.profile = value.data
+        }
+      }
+    })
+    .catch((errors => {
+      console.log(errors);
+    }))
+  reply(session)
+  session.endDialog()
+}
 
 
 
@@ -86,6 +102,8 @@ function getGeo(ort, session) {
 var connector = new builder.ChatConnector
 ({ appId: process.env.MY_APP_ID, appPassword: process.env.MY_APP_PASSWORD }); 
 var bot = new builder.UniversalBot(connector);
+bot.library(locationDialog.createLibrary("AoLS-Qbf5Xqrf_OoH7QHYR07T6n587pv_9hQDkOdq6O59OH5Fz6vQ39g2h2sO4sq"));
+
 server.post('/api/messages', connector.listen());
 
 // Anytime the major version is incremented any existing conversations will be restarted.
@@ -97,6 +115,9 @@ bot.use(builder.Middleware.dialogVersion({ version: 1.0, resetCommand: /^reset/i
 
 bot.endConversationAction('goodbye', 'Goodbye :)', { matches: /^goodbye/i });
 bot.beginDialogAction('help', '/help', { matches: /^help/i });
+
+
+
 
 // Create bot dialogs
 bot.dialog('/', 
@@ -158,6 +179,32 @@ function (session) {
 
     }
 ]);
+
+
+bot.dialog("/AU", [
+    function (session) {
+
+        locationDialog.getLocation(session, {
+            prompt: "Where should I ship your order? Type or say an address.",
+            requiredFields: 
+                locationDialog.LocationRequiredFields.streetAddress |
+                locationDialog.LocationRequiredFields.locality |
+                locationDialog.LocationRequiredFields.region |
+                locationDialog.LocationRequiredFields.postalCode |
+                locationDialog.LocationRequiredFields.country
+        });
+    },
+    function (session, results) {
+        if (results.response) {
+            var place = results.response;
+            session.send(place.streetAddress + ", " + place.locality + ", " + place.region + ", " + place.country + " (" + place.postalCode + ")");
+        }
+        else {
+            session.send("OK, I won't be shipping it");
+        }
+    }
+]);
+
 
 
 server.get('/', restify.serveStatic({
