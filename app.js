@@ -159,23 +159,22 @@ bot.dialog('/huaumenu', [
 
 bot.dialog('/HU', [
 function (session) {
-        builder.Prompts.text(session, "Wo möchten Sie denn die Hauptuntersuchung durchführen? Bitte geben Sie die PLZ oder Adresse ein und ich schlage eine TÜV Station in der Nähe vor.");
+        builder.Prompts.text(session, "Wo möchten Sie denn die Hauptuntersuchung durchführen? Bitte geben Sie die Adresse ein und ich schlage eine TÜV Station in der Nähe vor.");
         //session.send("Wo möchten Sie denn die Hauptuntersuchung durchführen? Bitte geben Sie die PLZ oder Adresse ein und ich schlage eine TÜV Station in der Nähe vor.");
     },
     function (session, results) {
         var ort = results.response;
         session.send("Einen Moment. Ich suche nach einer TÜV Station in der Nähe der Adresse: " + ort);
+        if(session.message.entities.length != 0){
+            session.userData.lat = session.message.entities[0].geo.latitude;
+            session.userData.lon = session.message.entities[0].geo.longitude;
+            session.endDialog("Bin hier angekommen.");
+        }else{
+            session.endDialog("Sorry, I didn't get your location.");
+        }
 
-        //if(Number(ort) = 'NaN')
-        //{
-        //    session.send("Einen Moment. Ich suche nach einer TÜV Station in der Nähe der Adresse: " + ort);
-        //} else {
-        //    session.send("Einen Moment. Ich suche nach einer TÜV Station in der Nähe der PLZ: " + ort);
-        //}
         getGeo(ort, session);
-        //console.log("hhh: " + closestIndex);
-        //session.send("Die folgende TÜV Station ist am nächsten zu dem Standort: " + tuevStations["stations"][closestIndex]);
-       // builder.Prompts.number(session, "Hi " + results.response + ", How many years have you been coding?");
+
 
     }
 ]);
@@ -185,11 +184,11 @@ bot.dialog("/AU", [
     function (session) {
 
         locationDialog.getLocation(session, {
-            prompt: "Where should I ship your order? Type or say an address.",
+            prompt: "Ich suche für Sie die TÜV Station in Ihrer Nähe. Bitte geben Sie den Standort an, in dessen Nähe wir suchen sollen.",
             requiredFields: 
-                locationDialog.LocationRequiredFields.streetAddress |
+                //locationDialog.LocationRequiredFields.streetAddress |
                 locationDialog.LocationRequiredFields.locality |
-                locationDialog.LocationRequiredFields.region |
+                //locationDialog.LocationRequiredFields.region |
                 locationDialog.LocationRequiredFields.postalCode |
                 locationDialog.LocationRequiredFields.country
         });
