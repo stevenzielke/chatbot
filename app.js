@@ -159,7 +159,7 @@ bot.dialog('/huaumenu', [
 
 bot.dialog('/HU', [
 function (session) {
-        builder.Prompts.text(session, "Wo möchten Sie denn die Hauptuntersuchung durchführen? Bitte geben Sie die Adresse ein und ich schlage eine TÜV Station in der Nähe vor.");
+        builder.Prompts.text(session, "Wo möchten Sie denn die Hauptuntersuchung durchführen? Bitte geben Sie Ihren Standort oder eine Adresse ein und ich schlage eine TÜV Station in der Nähe vor.");
         //session.send("Wo möchten Sie denn die Hauptuntersuchung durchführen? Bitte geben Sie die PLZ oder Adresse ein und ich schlage eine TÜV Station in der Nähe vor.");
     },
     function (session, results) {
@@ -168,7 +168,8 @@ function (session) {
         if(session.message.entities.length != 0){
             session.userData.lat = session.message.entities[0].geo.latitude;
             session.userData.lon = session.message.entities[0].geo.longitude;
-            session.endDialog("Bin hier angekommen.");
+            var tmp = JSON.stringify(session.message.entities[0].geo)
+            session.endDialog("Bin hier angekommen." + tmp);
         }else{
             session.endDialog("Sorry, I didn't get your location.");
         }
