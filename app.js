@@ -169,7 +169,7 @@ function (session) {
             session.userData.lat = session.message.entities[0].geo.latitude;
             session.userData.lon = session.message.entities[0].geo.longitude;
             var tmp = JSON.stringify(session.message.entities[0].geo)
-            session.endDialog("Bin hier angekommen." + tmp);
+            //session.endDialog("Bin hier angekommen." + tmp);
         }else{
             session.endDialog("Sorry, I didn't get your location.");
         }
