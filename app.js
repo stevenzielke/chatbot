@@ -3,6 +3,11 @@ var restify = require('restify');
 var builder = require('botbuilder'); 
 var math = require('mathjs');
 var locationDialog = require('botbuilder-location');
+var locationService = require("./bing-geospatial-service.js");
+var map_card_1 = require("./map-card");
+var MAX_CARD_COUNT = 5;
+//var defaultLocationDialog = require("./node_modules/botbuilder-location/lib/dialogs/default-location-dialog");
+
 var tuev = require('./tuev.js');
 
 // Setup Restify Server
@@ -35,7 +40,7 @@ function firstRun(session) {
 var connector = new builder.ChatConnector
 ({ appId: process.env.MY_APP_ID, appPassword: process.env.MY_APP_PASSWORD }); 
 var bot = new builder.UniversalBot(connector);
-bot.library(locationDialog.createLibrary("AoLS-Qbf5Xqrf_OoH7QHYR07T6n587pv_9hQDkOdq6O59OH5Fz6vQ39g2h2sO4sq"));
+bot.library(locationDialog.createLibrary(process.env.BING_API_KEY));
 server.post('/api/messages', connector.listen());
 
 // Anytime the major version is incremented any existing conversations will be restarted.
@@ -65,7 +70,7 @@ bot.dialog('/',
 
 bot.dialog('/huaumenu', [
     function (session) {
-        builder.Prompts.choice(session, "Wie kann ich Ihnen helfen? Mit einer Hauptuntersuchung (HU), oder einer Abgasuntersuchung (AU)?", "HU|AU|(abbrechen)");
+        builder.Prompts.choice(session, "Wie kann ich Ihnen helfen? Mit einer Hauptuntersuchung (HU), oder einer Abgasuntersuchung (AU)?", "HU|AU|test|(abbrechen)");
     },
     function (session, results) {
         if (results.response && results.response.entity != '(quit)') {
@@ -79,6 +84,24 @@ bot.dialog('/huaumenu', [
     function (session, results) {
         // The menu runs a loop until the user chooses to (quit).
         session.replaceDialog('/huaumenu');
+    }
+]);
+
+bot.dialog('/test', [
+    function (session) {
+
+        locationService.getLocationByQuery(process.env.BING_API_KEY, "Neustadt").then(function (locations) {
+            if (locations.length == 0) {
+                session.send(consts_1.Strings.LocationNotFound).sendBatch();
+                return;
+            }
+            var locationCount = Math.min(MAX_CARD_COUNT, locations.length);
+            locations = locations.slice(0, locationCount);
+            var reply = createLocationsCard(process.env.BING_API_KEY, session, locations);
+            session.send(reply);
+            session.endDialogWithResult({ response: { locations: locations } });
+           })
+
     }
 ]);
 
@@ -139,3 +162,30 @@ server.get('/', restify.serveStatic({
  directory: __dirname,
  default: '/index.html'
 }));
+
+
+
+
+
+
+
+function createLocationsCard(apiKey, session, locations) {
+    var cards = new Array();
+    for (var i = 0; i < locations.length; i++) {
+        cards.push(constructCard(apiKey, session, locations, i));
+    }
+    return new builder.Message(session)
+        .attachmentLayout(builder.AttachmentLayout.carousel)
+        .attachments(cards);
+}
+function constructCard(apiKey, session, locations, index) {
+    var location = locations[index];
+    var card = new map_card_1.MapCard(apiKey, session);
+    if (locations.length > 1) {
+        card.location(location, index + 1);
+    }
+    else {
+        card.location(location);
+    }
+    return card;
+}
