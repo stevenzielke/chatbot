@@ -1,0 +1,14 @@
+{
+	"stations": [
+		{
+		"lat": "53.4903476",
+        "lng": "10.2026361",
+        "address": "Bergedorfer Straße 74, 21033 Hamburg"
+		},
+		{
+		"lat": "48.44719",
+        "lng": "11.13818",
+        "address": "Rudolf-Diesel-Str. 3, 86551 Aichach"
+		}
+	]
+}

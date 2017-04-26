@@ -1,0 +1,11 @@
+{
+    "default_text": "Ich habe Sie leider nicht verstanden. Bitte versuchen Sie es noch mal. Oder geben Sie \"abbrechen\" ein, um den Chat neu zu starten.",
+    "default_number": "Ich habe die Zahl nicht erkannt. Bitte geben Sie eine Zahl ein.",
+    "default_confirm": "Ich habe Sie leider nicht verstanden. Bitte geben Sie 'ja' oder 'nein' ein.",
+    "default_choice": "Ich habe Sie leider nicht verstanden. Bitte wählen Sie aus den Optionen aus. Oder geben Sie \"abbrechen\" ein, um den Chat neu zu starten.",
+    "default_time": "Ich habe die zeitangabe leider nicht verstanden. Bitte versuchen Sie die Zeit in dieser Art einzugeben: 12.04.2017 12:30",
+    "default_file": "Ich habe keine Datei erhalten. Bitte versuchen Sie es noch mal.",
+    "default_error": "Ok. Da ist wohl etwas schief gelaufen. Ich muss leider von vorne beginnen.",
+	"confirm_yes": "ja",
+	"confirm_no": "nein"
+}   
