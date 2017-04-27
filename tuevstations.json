@@ -10,5 +10,11 @@
         "lng": "11.13818",
         "address": "Rudolf-Diesel-Str. 3, 86551 Aichach"
 		}
+		,
+		{
+		"lat": "50.7426619",
+        "lng": "9.2580435",
+        "address": "Grünberger Str. 76, 36304 Alsfeld"
+		}
 	]
 }

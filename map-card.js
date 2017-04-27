@@ -34,3 +34,4 @@ var MapCard = (function (_super) {
     return MapCard;
 }(botbuilder_1.HeroCard));
 exports.MapCard = MapCard;
+

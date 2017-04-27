@@ -4,7 +4,7 @@ var builder = require('botbuilder');
 var math = require('mathjs');
 var locationDialog = require('botbuilder-location');
 var locationService = require("./bing-geospatial-service.js");
-var map_card_1 = require("./map-card");
+var map_card = require("./map-card");
 var MAX_CARD_COUNT = 5;
 //var defaultLocationDialog = require("./node_modules/botbuilder-location/lib/dialogs/default-location-dialog");
 
@@ -87,28 +87,12 @@ bot.dialog('/huaumenu', [
     }
 ]);
 
-bot.dialog('/test', [
-    function (session) {
 
-        locationService.getLocationByQuery(process.env.BING_API_KEY, "Neustadt").then(function (locations) {
-            if (locations.length == 0) {
-                session.send(consts_1.Strings.LocationNotFound).sendBatch();
-                return;
-            }
-            var locationCount = Math.min(MAX_CARD_COUNT, locations.length);
-            locations = locations.slice(0, locationCount);
-            var reply = createLocationsCard(process.env.BING_API_KEY, session, locations);
-            session.send(reply);
-            session.endDialogWithResult({ response: { locations: locations } });
-           })
-
-    }
-]);
 
 
 
 bot.dialog('/HU', [
-function (session) {
+    function (session) {
         builder.Prompts.text(session, "Wo möchten Sie denn die Hauptuntersuchung durchführen? Bitte geben Sie Ihren Standort oder eine Adresse ein und ich schlage eine TÜV Station in der Nähe vor.");
     },
     function (session, results) {
@@ -117,17 +101,38 @@ function (session) {
         if(session.message.entities.length != 0){
             session.userData.lat = session.message.entities[0].geo.latitude;
             session.userData.lon = session.message.entities[0].geo.longitude;
-            var tmp = JSON.stringify(session.message.entities[0].geo)
         } else {
-            //session.endDialog("Sorry, I didn't get your location.");
-            var closestStation;
-            tuev.getClosestStation(ort,function(closestStation){
-                session.send("Die folgende TÜV Station ist am nächsten zu dem Standort: " + closestStation.address);
-            });
+            locationService.getLocationByQuery(process.env.BING_API_KEY, ort+", Deutschland").then(function (locations) {
+                var jsonString = JSON.stringify(locations);
+                if (locations.length == 0) {
+                    session.send(consts_1.Strings.LocationNotFound).sendBatch();
+                    return;
+                }
+                var locationCount = Math.min(MAX_CARD_COUNT, locations.length);
+                locations = locations.slice(0, locationCount);
+                var reply = createLocationsCard(process.env.BING_API_KEY, session, locations);
+                session.send(reply);
+                session.userData.locations = locations;
+                //session.endDialogWithResult({ response: { locations: locations } });
+                builder.Prompts.number(session, "Ihre Angaben haben mehrere Möglichkeiten Ergeben. Bitte wählen Sie aus.");
+            })
         }
-        
-        var tmp;
-
+    },
+    function (session, results) {
+        var standort = session.userData.locations[results.response - 1];
+        session.userData.standort = standort;
+        //var closestStation;
+        tuev.getClosestStation(standort,function(closestStations){
+        var reply = createLocationsCard(process.env.BING_API_KEY, session, closestStations);
+        session.send(reply);
+        session.userData.closestStations = closestStations;
+        builder.Prompts.number(session, "Diese TÜV Stationen in der Nähe wurden gefunden. Bitte wählen Sie eine Station aus.");
+             //session.send("Die folgende TÜV Station ist am nächsten zu dem Standort: " + closestStation.address);
+        });
+    },
+    function (session, results) {
+        var selectedStation = session.userData.closestStations[results.response - 1];
+        session.send("Ausgwqwählte TÜV Station: " + selectedStation.address.formattedAddress);
     }
 ]);
 
@@ -158,10 +163,36 @@ bot.dialog("/AU", [
 
 
 
+bot.dialog('/test', [
+    function (session) {
+        locationService.getLocationByQuery(process.env.BING_API_KEY, "Neustadt").then(function (locations) {
+            if (locations.length == 0) {
+                session.send(consts_1.Strings.LocationNotFound).sendBatch();
+                return;
+            }
+            var locationCount = Math.min(MAX_CARD_COUNT, locations.length);
+            locations = locations.slice(0, locationCount);
+            var reply = createLocationsCard(process.env.BING_API_KEY, session, locations);
+            session.send(reply);
+            session.endDialogWithResult({ response: { locations: locations } });
+           })
+    }
+]);
+
+
+
 server.get('/', restify.serveStatic({
  directory: __dirname,
  default: '/index.html'
 }));
+
+
+
+
+
+
+
+
 
 
 
@@ -180,7 +211,7 @@ function createLocationsCard(apiKey, session, locations) {
 }
 function constructCard(apiKey, session, locations, index) {
     var location = locations[index];
-    var card = new map_card_1.MapCard(apiKey, session);
+    var card = new map_card.MapCard(apiKey, session);
     if (locations.length > 1) {
         card.location(location, index + 1);
     }

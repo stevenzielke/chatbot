@@ -1,4 +1,4 @@
-var tuevStations = require('./tuevstations.json');
+var tuevStations = require('./tuevstations_coded.json');
 var math = require('mathjs');
 var closestIndex;
 
@@ -6,39 +6,36 @@ var closestIndex;
 module.exports.getClosestStation =getClosestStation;
 
 
-function getClosestStation(ort, callback) {
-    // setup Google Maps
-    var googleMapsClient = require('@google/maps').createClient({
-        key: 'AIzaSyBn6M9Sl3K4tRn0QbkqN5QPSdHoNMIvndw'
-    });
-    googleMapsClient.geocode({
-        address: ort
-        }, function(err, response) {
-        if (!err) {
-            for(var i = 0; i < response.json.results.length; i++) {
-                if (response.json.results[i].geometry) {
-                    var lat = response.json.results[i].geometry.location.lat;
-                    var lng = response.json.results[i].geometry.location.lng;
-                 }
-            }
+function getClosestStation(standort, callback) {
+    var lat = standort.point.coordinates[0];
+    var lng = standort.point.coordinates[1];
             
-            var closestDist;
-            for(var i = 0; i < tuevStations["stations"].length; i++) {
-                    var latDelta = tuevStations["stations"][i].lat - lat;
-                    var lngDelta = tuevStations["stations"][i].lng - lng;
+            //var closestDist;
+            for(var i = 0; i < tuevStations.length; i++) {
+                var tmp = tuevStations[i].point;
+                var tmp2 = tuevStations[i];
+                    var latDelta = tuevStations[i].point.coordinates[0] - lat;
+                    var lngDelta = tuevStations[i].point.coordinates[1] - lng;
                     var dist = math.sqrt(latDelta*latDelta + lngDelta*lngDelta);
-                    var test;
-                    if(!closestDist || dist < closestDist) {
-                        closestDist = dist;
-                        closestIndex = i;
-                    }
+                    tuevStations[i].dist = dist;
             }
-            callback(tuevStations["stations"][closestIndex]);;
+            tuevStations.sort(compare);
+
+            callback(tuevStations);
             //session.send("Die folgende TÜV Station ist am nächsten zu dem Standort: " + tuevStations["stations"][closestIndex].address);
 
-        } else {
+  //      } else {
             //console.log(err);
-        }
-        }
-    );
+   //     }
+//        }
+ //   );
+}
+
+
+function compare(a,b) {
+  if (a.dist < b.dist)
+    return 1;
+  if (a.dist > b.dist)
+    return -+1;
+  return 0;
 }
