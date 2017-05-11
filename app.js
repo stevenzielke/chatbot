@@ -6,6 +6,7 @@ var locationDialog = require('botbuilder-location');
 var locationService = require("./bing-geospatial-service.js");
 var map_card = require("./map-card");
 var MAX_CARD_COUNT = 5;
+var facebookextensions = require('botbuilder-facebookextension');
 //var defaultLocationDialog = require("./node_modules/botbuilder-location/lib/dialogs/default-location-dialog");
 
 var tuev = require('./tuev.js');
@@ -36,6 +37,9 @@ function firstRun(session) {
 }
 
 
+
+
+
 // Create chat bot
 var connector = new builder.ChatConnector
 ({ appId: process.env.MY_APP_ID, appPassword: process.env.MY_APP_PASSWORD }); 
@@ -45,6 +49,13 @@ server.post('/api/messages', connector.listen());
 
 // Anytime the major version is incremented any existing conversations will be restarted.
 bot.use(builder.Middleware.dialogVersion({ version: 1.0, resetCommand: /^reset/i }));
+
+bot.use(  
+    facebookextensions.RetrieveUserProfile({
+        accessToken: process.env.FACEBOOK_PAGE_ACCESS_TOKEN,
+    })
+);
+
 
 //=========================================================
 // Bots Global Actions
@@ -64,6 +75,7 @@ bot.dialog('/',
                 ]);
         var msg = new builder.Message(session).attachments([card]);
         session.send(msg);
+        session.send(`Hi ${session.userData.first_name}!`);
         session.beginDialog('/huaumenu');
     }
 );

@@ -19,6 +19,9 @@ var MapCard = (function (_super) {
             indexText = index + ". ";
         }
         this.subtitle(indexText + location.address.formattedAddress);
+        this.tap(
+            console.log('yes')
+            );
         if (location.point) {
             var locationUrl;
             try {

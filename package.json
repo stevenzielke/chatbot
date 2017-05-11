@@ -23,6 +23,7 @@
   "dependencies": {
     "@google/maps": "^0.3.1",
     "botbuilder": "^3.7.0",
+    "botbuilder-facebookextension": "^1.2.2",
     "botbuilder-location": "^1.1.0",
     "https": "^1.0.0",
     "mathjs": "^3.12.0",
