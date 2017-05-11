@@ -75,7 +75,8 @@ bot.dialog('/',
                 ]);
         var msg = new builder.Message(session).attachments([card]);
         session.send(msg);
-        session.send(`Hi ${session.userData.first_name}!`);
+        var test = JSON.stringify(session.userData);
+        session.send(test);
         session.beginDialog('/huaumenu');
     }
 );
